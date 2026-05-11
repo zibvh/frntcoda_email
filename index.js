@@ -1,10 +1,32 @@
 require('dotenv').config();
-const express = require('express');
-const cors    = require('cors');
+const express    = require('express');
+const cors       = require('cors');
 const { Resend } = require('resend');
+const Brevo      = require('@getbrevo/brevo');
 
-const app    = express();
+const app = express();
+
+// ── Provider setup ─────────────────────────────────────────────────
+// Set EMAIL_PROVIDER=brevo  to use Brevo (no domain needed, send to anyone)
+// Set EMAIL_PROVIDER=resend to use Resend (requires verified domain)
+// Defaults to brevo if not set.
+
+const PROVIDER = (process.env.EMAIL_PROVIDER || 'brevo').toLowerCase();
+
+// Resend client (kept even when Brevo is active — swap any time)
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Brevo client
+const brevoClient = new Brevo.TransactionalEmailsApi();
+brevoClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+
+// Expose both clients + active provider to routes via app.locals
+app.locals.provider   = PROVIDER;
+app.locals.resend     = resend;
+app.locals.brevo      = brevoClient;
+app.locals.FROM_EMAIL = process.env.FROM_EMAIL || 'frNtcOda <frntcoda@gmail.com>';
+
+console.log(`[frNtcOda Email] Provider: ${PROVIDER.toUpperCase()}`);
 
 // ── Allowed origins ────────────────────────────────────────────────
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
@@ -14,7 +36,6 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (e.g. server-to-server, Postman)
     if (!origin) return callback(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
@@ -34,7 +55,11 @@ function requireApiKey(req, res, next) {
 
 // ── Health check ───────────────────────────────────────────────────
 app.get('/', (req, res) => {
-  res.json({ service: 'frNtcOda Email Service', status: 'ok' });
+  res.json({
+    service:  'frNtcOda Email Service',
+    status:   'ok',
+    provider: PROVIDER,
+  });
 });
 
 // ── Email routes ───────────────────────────────────────────────────
