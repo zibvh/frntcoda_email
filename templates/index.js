@@ -97,8 +97,7 @@ exports.tutorWelcome = ({ toName, dashboardUrl }) => layout(
     <ul>
       <li>91.5% revenue share on all course sales</li>
       <li>50/50 split on certificate fees</li>
-      <li>Dedicated tutor profile and course page</li>
-      <li>Monthly payout to Nigerian bank accounts</li>
+      <li>Automatic payouts</li>
       <li>Courses go live within 24–26 hours of submission</li>
     </ul>
   </div>
@@ -226,4 +225,82 @@ exports.passwordReset = ({ toName, resetUrl }) => layout(
   <a href="${resetUrl}" class="cta" style="background:linear-gradient(135deg,#3730A3,#6366F1);">Reset My Password &rarr;</a>
   <div class="msg" style="font-size:13px;margin-bottom:0;">If you didn't request this, you can safely ignore this email. Your account is secure.<br><br>
   Having trouble? <a href="mailto:frntcoda@gmail.com" style="color:#3B7FFF;">frntcoda@gmail.com</a></div>`
+);
+
+// ── 8. Student Welcome ─────────────────────────────────────────────
+exports.studentWelcome = ({ toName, dashboardUrl }) => layout(
+  'linear-gradient(135deg,#1A4FD8,#2B6BFF,#60A5FA)',
+  'Welcome to frNtcOda!',
+  `<div class="greeting">Welcome, <span class="name">${toName}</span>!</div>
+  <div class="pill pill-blue">Student Account</div>
+  <div class="msg">You've just joined <strong style="color:#fff;">frNtcOda</strong> — No1 home for tech education. You're now ready to learn, grow, and earn verified certificates that prove your skills.</div>
+  <div class="highlight">
+    <div class="highlight-val">🚀</div>
+    <div class="highlight-lbl">Thousands of courses. Real skills. Verified certificates.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Get started in 3 steps</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Browse courses</strong> — find something you want to learn</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Enroll and learn</strong> — complete lessons at your own pace</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Pass the exam</strong> and earn your verified certificate</div></div>
+    </div>
+  </div>
+  <a href="${dashboardUrl}" class="cta">Go to Dashboard &rarr;</a>
+  <div class="card" style="margin-bottom:0;">
+    <div class="card-title">Why frNtcOda?</div>
+    <ul>
+      <li>Courses built by Nigerian tech professionals</li>
+      <li>Verified certificates you can share on LinkedIn</li>
+      <li>Learn at your own pace — no deadlines</li>
+      <li>Affordable pricing in Naira — no forex stress</li>
+      <li>Support at frntcoda@gmail.com</li>
+    </ul>
+  </div>`
+);
+
+// ── 9. Tutor Payment Notification ─────────────────────────────────
+exports.tutorPaymentNotification = ({ toName, studentName, courseName, paymentType, amount, tutorShare, platformFee, courseLink }) => layout(
+  'linear-gradient(135deg,#064E3B,#059669,#34D399)',
+  'New Payment!',
+  `<div class="greeting">You made a sale, <span class="name">${toName}</span>!</div>
+  <div class="pill pill-green">${paymentType || 'Course Enrollment'}</div>
+  <div class="msg"><strong style="color:#fff;">${studentName}</strong> just ${paymentType === 'Certificate Unlock' ? 'unlocked their certificate for' : 'enrolled in'} <strong style="color:#fff;">"${courseName}"</strong>.</div>
+  <div class="fee" style="background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(34,197,94,.05));border-color:rgba(34,197,94,.25);">
+    <div class="fee-amt" style="color:#22C55E;">${tutorShare}</div>
+    <div class="fee-lbl">Your share</div>
+    <div class="fee-note">Total paid: ${amount} &mdash; Platform fee: ${platformFee}</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Payment details</div>
+    <ul>
+      <li>Student: <strong style="color:#fff;">${studentName}</strong></li>
+      <li>Course: <strong style="color:#fff;">${courseName}</strong></li>
+      <li>Type: <strong style="color:#fff;">${paymentType || 'Course Enrollment'}</strong></li>
+      <li>Total paid by student: <strong style="color:#fff;">${amount}</strong></li>
+      <li>Your earnings: <strong style="color:#22C55E;">${tutorShare}</strong></li>
+      <li>Platform fee: <strong style="color:#fff;">${platformFee}</strong></li>
+    </ul>
+  </div>
+  <a href="${courseLink || 'https://frntcoda.onrender.com/tutor-dashboard.html'}" class="cta" style="background:linear-gradient(135deg,#059669,#34D399);">View in Dashboard &rarr;</a>`
+);
+
+// ── 10. Submission Notification (to tutor) ─────────────────────────
+exports.submissionNotification = ({ toName, studentName, examTitle, theoryAnswer, fileUrl, objScore }) => layout(
+  'linear-gradient(135deg,#1E1B4B,#3730A3,#6366F1)',
+  'New Submission to Review',
+  `<div class="greeting">New submission, <span class="name">${toName}</span>!</div>
+  <div class="pill pill-blue">Exam / Assignment</div>
+  <div class="msg"><strong style="color:#fff;">${studentName}</strong> submitted answers for <strong style="color:#fff;">"${examTitle}"</strong> and is awaiting your review.</div>
+  <div class="card">
+    <div class="card-title">Submission summary</div>
+    <ul>
+      <li>Student: <strong style="color:#fff;">${studentName}</strong></li>
+      <li>Exam/Lesson: <strong style="color:#fff;">${examTitle}</strong></li>
+      ${objScore !== '(not required)' ? `<li>Objective score: <strong style="color:#22C55E;">${objScore}</strong></li>` : ''}
+      ${theoryAnswer !== '(not required)' ? `<li>Theory answer submitted: <strong style="color:#fff;">Yes</strong></li>` : ''}
+      ${fileUrl && fileUrl !== '(not required)' ? `<li>File submitted: <a href="${fileUrl}" style="color:#2B6BFF;">View file</a></li>` : ''}
+    </ul>
+  </div>
+  <a href="https://frntcoda.onrender.com/tutor-dashboard.html" class="cta" style="background:linear-gradient(135deg,#3730A3,#6366F1);">Review Submission &rarr;</a>`
 );

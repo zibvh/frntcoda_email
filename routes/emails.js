@@ -105,4 +105,45 @@ router.post('/password-reset', async (req, res) => {
   });
 });
 
+// ── POST /email/student-welcome ───────────────────────────────────
+// Body: { to, toName, dashboardUrl }
+router.post('/student-welcome', async (req, res) => {
+  const { to, toName, dashboardUrl } = req.body;
+  if (!to || !toName) return res.status(400).json({ error: 'Missing: to, toName' });
+  await send(res, {
+    to,
+    subject: 'Welcome to frNtcOda — Start Learning Today!',
+    html: templates.studentWelcome({ toName, dashboardUrl: dashboardUrl || 'https://frntcoda.onrender.com/student-dashboard.html' })
+  });
+});
+
+// ── POST /email/tutor-payment-notification ────────────────────────
+// Body: { to, toName, studentName, courseName, paymentType, amount, tutorShare, platformFee, courseLink }
+router.post('/tutor-payment-notification', async (req, res) => {
+  const { to, toName, studentName, courseName, paymentType, amount, tutorShare, platformFee, courseLink } = req.body;
+  if (!to || !toName || !studentName || !courseName) return res.status(400).json({ error: 'Missing: to, toName, studentName, courseName' });
+  await send(res, {
+    to,
+    subject: `New ${paymentType || 'payment'}: ${studentName} enrolled in "${courseName}"`,
+    html: templates.tutorPaymentNotification({ toName, studentName, courseName, paymentType, amount, tutorShare, platformFee, courseLink })
+  });
+});
+
+// ── POST /email/submission-notification ──────────────────────────
+// Body: { to, toName, studentName, examTitle, theoryAnswer, fileUrl, objScore }
+router.post('/submission-notification', async (req, res) => {
+  const { to, toName, studentName, examTitle, theoryAnswer, fileUrl, objScore } = req.body;
+  if (!to || !toName || !studentName || !examTitle) return res.status(400).json({ error: 'Missing: to, toName, studentName, examTitle' });
+  await send(res, {
+    to,
+    subject: `${studentName} submitted answers for "${examTitle}"`,
+    html: templates.submissionNotification({
+      toName, studentName, examTitle,
+      theoryAnswer: theoryAnswer || '(not required)',
+      fileUrl:      fileUrl      || '(not required)',
+      objScore:     objScore     || '(not required)',
+    })
+  });
+});
+
 module.exports = router;
