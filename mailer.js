@@ -7,9 +7,9 @@
  *
  * Switch provider any time by changing EMAIL_PROVIDER in .env.
  * No route code needs to change.
+ *
+ * Brevo SDK v2 note: uses BrevoClient({ apiKey }) + client.transactionalEmails.sendTransacEmail()
  */
-
-const Brevo = require('@getbrevo/brevo');
 
 /**
  * @param {import('express').Application} app   - Express app (for app.locals)
@@ -29,14 +29,16 @@ async function sendEmail(app, { to, toName, subject, html }) {
   }
 }
 
-// ── Brevo ──────────────────────────────────────────────────────────
+// ── Brevo v2 ───────────────────────────────────────────────────────
+// New SDK: BrevoClient instance exposes client.transactionalEmails.sendTransacEmail(payload)
+// Payload is a plain object — no Brevo.SendSmtpEmail() constructor needed.
 async function sendViaBrevo(client, { to, toName, subject, html, fromName, fromEmail }) {
-  const email = new Brevo.SendSmtpEmail();
-  email.sender      = { name: fromName, email: fromEmail };
-  email.to          = [{ email: to, name: toName || to }];
-  email.subject     = subject;
-  email.htmlContent = html;
-  return client.sendTransacEmail(email);
+  return client.transactionalEmails.sendTransacEmail({
+    sender:      { name: fromName, email: fromEmail },
+    to:          [{ email: to, name: toName || to }],
+    subject:     subject,
+    htmlContent: html,
+  });
 }
 
 // ── Resend ─────────────────────────────────────────────────────────

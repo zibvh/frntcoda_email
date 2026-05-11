@@ -2,7 +2,7 @@ require('dotenv').config();
 const express    = require('express');
 const cors       = require('cors');
 const { Resend } = require('resend');
-const Brevo      = require('@getbrevo/brevo');
+const { BrevoClient } = require('@getbrevo/brevo');
 
 const app = express();
 
@@ -13,12 +13,11 @@ const app = express();
 
 const PROVIDER = (process.env.EMAIL_PROVIDER || 'brevo').toLowerCase();
 
-// Resend client (kept even when Brevo is active — swap any time)
+// Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Brevo client
-const brevoClient = new Brevo.TransactionalEmailsApi();
-brevoClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+// Brevo v2 client — new SDK uses BrevoClient({ apiKey })
+const brevoClient = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
 
 // Expose both clients + active provider to routes via app.locals
 app.locals.provider   = PROVIDER;
